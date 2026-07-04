@@ -1,0 +1,32 @@
+name: Auto Data Scraper to Supabase
+
+on:
+  schedule:
+    # 매일 자정(UTC) = 한국 시간 오전 9시에 자동 실행
+    - cron: '0 0 * * *'
+  workflow_dispatch: # GitHub 웹 UI에서 수동으로 실행 버튼 클릭 가능
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 체크아웃 리포지토리
+      uses: actions/checkout@v4
+
+    - name: 파이썬 환경 설정
+      uses: actions/setup-python@v5
+      with:
+        python-python-version: '3.10'
+
+    - name: 의존성 패키지 설치
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: 스크래핑 스크립트 실행
+      env:
+        TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      run: python scraper.py
